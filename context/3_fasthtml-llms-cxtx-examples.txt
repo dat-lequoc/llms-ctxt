@@ -1,8 +1,7 @@
 <title>FastHTML Gallery and Extended Examples</title>
 <description>A comprehensive collection of FastHTML examples, merging the curated Gallery with additional distinct use cases to help you get started and explore advanced features.</description>
 
-<category name="Basic Examples">
-  <example name="Interactive Text Change">
+<example name="Interactive Text Change">
 from fasthtml.common import *
 
 app,rt = fast_app()
@@ -14,11 +13,8 @@ def get(): return Div(P('Click me to change this text!'), hx_get="/change")
 def get(): return P('Text has been changed!')
 
 serve()
-  </example>
-</category>
-
-<category name="Applications">
-  <example name="Annotate Text">
+</example>
+<example name="Annotate Text">
 from fasthtml.common import *
 import json
 import httpx
@@ -123,8 +119,8 @@ def get(idx:int = 0):
                 cls="container mx-auto min-h-screen bg-gray-100 p-8 flex flex-col",
                 hx_target="this")
 
-  </example>
-  <example name="Cellular Automata">
+</example>
+<example name="Cellular Automata">
 from fasthtml.common import *
 from starlette.responses import Response
 from uuid import uuid4
@@ -296,8 +292,8 @@ def inputTemplate(label, name, val, errorMsg=None, input_type='number'):
                Input(name=name,type=input_type,value=f'{val}',style="width: 340px;",hx_post=f'validate/{name.lower()}'), # Creates input field
                Div(f'{errorMsg}', style='color: red;') if errorMsg else None) # Creates red error message below if there is an error
 
-  </example>
-  <example name="Csv Editor">
+</example>
+<example name="Csv Editor">
 from fasthtml.common import *
 from uuid import uuid4
 
@@ -364,8 +360,8 @@ def post(csv_file: UploadFile, sess):
 serve()
 
 
-  </example>
-  <example name="Tic Tac Toe">
+</example>
+<example name="Tic Tac Toe">
 from fasthtml.common import *
 
 style = Style("""body{
@@ -506,191 +502,8 @@ def homepage():
         cls="justify-center items-center min-h-screen bg-custom-background")
 
 
-  </example>
-  <example name="Todo App (Simple SQLite)">
-from fasthtml.common import *
-import sqlite3
-import os
-
-# Initialize database
-DB_PATH = "todos.db"
-if not os.path.exists(DB_PATH):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE todos
-                 (id INTEGER PRIMARY KEY, task TEXT, completed BOOLEAN)''')
-    conn.commit()
-    conn.close()
-
-# Set up the app
-app, rt = fast_app()
-
-# Styles
-css = Style('''
-    .todo-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-    }
-    .todo-item {
-        display: flex;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 1px solid #eee;
-    }
-    .todo-item.completed {
-        text-decoration: line-through;
-        color: #888;
-    }
-    .todo-checkbox {
-        margin-right: 10px;
-    }
-    .todo-text {
-        flex-grow: 1;
-    }
-    .todo-delete {
-        color: red;
-        cursor: pointer;
-    }
-    .todo-form {
-        display: flex;
-        margin-bottom: 20px;
-    }
-    .todo-input {
-        flex-grow: 1;
-        padding: 8px;
-        margin-right: 10px;
-    }
-''')
-
-# Database functions
-def get_todos_db():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT id, task, completed FROM todos ORDER BY id DESC")
-    todos_data = [{"id": row[0], "task": row[1], "completed": bool(row[2])} for row in c.fetchall()]
-    conn.close()
-    return todos_data
-
-def add_todo_db(task):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO todos (task, completed) VALUES (?, ?)", (task, False))
-    conn.commit()
-    conn.close()
-
-def toggle_todo_db(todo_id):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT completed FROM todos WHERE id = ?", (todo_id,))
-    completed = not bool(c.fetchone()[0])
-    c.execute("UPDATE todos SET completed = ? WHERE id = ?", (completed, todo_id))
-    conn.commit()
-    conn.close()
-
-def delete_todo_db(todo_id):
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
-    conn.commit()
-    conn.close()
-
-# Todo item component
-def todo_item_component(todo):
-    completed_class = "completed" if todo["completed"] else ""
-    return Div(
-        cls=f"todo-item {completed_class}",
-        id=f"todo-{todo['id']}"
-    )(
-        Input(
-            type="checkbox",
-            cls="todo-checkbox",
-            checked=todo["completed"],
-            hx_post=f"/toggle/{todo['id']}",
-            hx_target=f"#todo-{todo['id']}",
-            hx_swap="outerHTML"
-        ),
-        Span(todo["task"], cls="todo-text"),
-        Span(
-            "✕",
-            cls="todo-delete",
-            hx_post=f"/delete/{todo['id']}",
-            hx_target=f"#todo-{todo['id']}",
-            hx_swap="outerHTML" # This will remove the item
-        )
-    )
-
-# Todo list component
-def todo_list_component():
-    todos_data = get_todos_db()
-    return Div(id="todo-list")(
-        *[todo_item_component(todo) for todo in todos_data]
-    )
-
-# Routes
-@rt('/')
-def get_main_page():
-    return Title("FastHTML Todo App"), Main(
-        Div(cls="todo-container")(
-            H1("FastHTML Todo App"),
-            Form(
-                cls="todo-form",
-                hx_post="/add",
-                hx_target="#todo-list",
-                hx_swap="afterbegin", # New items at the top
-                 # Clear input after submission (htmx feature on form)
-                _="on htmx:afterRequest target.reset()"
-            )(
-                Input(
-                    type="text",
-                    name="task",
-                    placeholder="Add a new todo...",
-                    cls="todo-input",
-                    required=True
-                ),
-                Button("Add", type="submit")
-            ),
-            todo_list_component()
-        ),
-        css
-    )
-
-@rt('/add')
-def post_add_todo(task: str):
-    add_todo_db(task)
-    # Return only the new item to be prepended
-    newest_todo = get_todos_db()[0] 
-    return todo_item_component(newest_todo)
-
-@rt('/toggle/{todo_id}')
-def post_toggle_todo(todo_id: int):
-    toggle_todo_db(todo_id)
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("SELECT id, task, completed FROM todos WHERE id = ?", (todo_id,))
-    row = c.fetchone()
-    conn.close()
-    if row:
-      updated_todo = {"id": row[0], "task": row[1], "completed": bool(row[2])}
-      return todo_item_component(updated_todo)
-    return "" # Should not happen if ID is valid
-
-@rt('/delete/{todo_id}')
-def post_delete_todo(todo_id: int):
-    delete_todo_db(todo_id)
-    # Return an empty response because hx_swap="outerHTML" on the span
-    # will effectively remove the item's container if it's targeted correctly,
-    # or more simply, target the parent Div and use outerHTML.
-    # The span itself with outerHTML will remove the span.
-    # To remove the whole item, the hx_target on the delete span should be closest .todo-item
-    # For this example, returning "" with outerHTML on the span is fine, 
-    # but better to target the parent div and use hx_swap="delete" or outerHTML=""
-    return "" 
-
-# Start the server
-serve()
-  </example>
-  <example name="Chatbot">
+</example>
+<example name="Chatbot">
 from fasthtml.common import *
 import time
 
@@ -781,8 +594,8 @@ def post_send_message(message_text: str):
 
 # Start the server
 serve()
-  </example>
-  <example name="File Upload Form with Listing and Download">
+</example>
+<example name="File Upload Form with Listing and Download">
 from fasthtml.common import *
 import os
 from uuid import uuid4
@@ -921,11 +734,8 @@ def get_download_file(filename_to_download: str):
     return RedirectResponse(url="/?error=File not found", status_code=303)
 
 serve()
-  </example>
-</category>
-
-<category name="Dynamic User Interface (Htmx)">
-  <example name="Active Search">
+</example>
+<example name="Active Search">
 from fasthtml.common import *
 
 app, rt = fast_app()
@@ -1015,8 +825,8 @@ def index():
 
 serve()
 
-  </example>
-  <example name="Animations">
+</example>
+<example name="Animations">
 import random
 from fasthtml.common import *
 
@@ -1098,8 +908,8 @@ def index():
 
 serve()
 
-  </example>
-  <example name="Bulk Update">
+</example>
+<example name="Bulk Update">
 from fasthtml.common import *
 from collections import defaultdict
 
@@ -1160,8 +970,8 @@ async def update(request, id:str):
     return Div(*[Div(change) for change in changes]) if changes else Div("No changes detected")
 
 serve()
-  </example>
-  <example name="Cascading Dropdowns">
+</example>
+<example name="Cascading Dropdowns">
 from fasthtml.common import *
 
 app, rt = fast_app()
@@ -1195,8 +1005,8 @@ def index():
             Div(Div(id='lessons')),))
 
 
-  </example>
-  <example name="Click To Edit">
+</example>
+<example name="Click To Edit">
 from fasthtml.common import *
 
 app, rt = fast_app()
@@ -1235,8 +1045,8 @@ def contact(c:Contact, btn:str):
     return contacts[0]
 
 
-  </example>
-  <example name="Click To Load">
+</example>
+<example name="Click To Load">
 from uuid import uuid4
 from fasthtml.common import *
 
@@ -1264,8 +1074,8 @@ def index():
 
 serve()
 
-  </example>
-  <example name="Configurable Select">
+</example>
+<example name="Configurable Select">
 from fasthtml.common import *
 from monsterui.all import *
 
@@ -1295,8 +1105,8 @@ def mk_form(add_option:str=None, options:str='isaac,hamel,curtis'):
 
 serve()
 
-  </example>
-  <example name="Custom Keybindings">
+</example>
+<example name="Custom Keybindings">
 from fasthtml.common import * 
 
 app, rt = fast_app()
@@ -1319,8 +1129,8 @@ def render_button(text):
 
 serve()
 
-  </example>
-  <example name="Delete Row">
+</example>
+<example name="Delete Row">
 from fasthtml.common import *
 
 app, rt = fast_app()
@@ -1372,8 +1182,8 @@ def delete(id: int, sess):
 
 serve()
 
-  </example>
-  <example name="Infinite Scroll">
+</example>
+<example name="Infinite Scroll">
 from fasthtml.common import *
 import uuid
 column_names = ('name', 'email', 'id')
@@ -1410,8 +1220,8 @@ def page(idx:int|None = 0):
     return generate_table_part(idx)
 
 
-  </example>
-  <example name="Inline Validation">
+</example>
+<example name="Inline Validation">
 from fasthtml.common import *
 import re
 ################
@@ -1494,8 +1304,8 @@ def inputTemplate(label, name, val, errorMsg=None, input_type='text'):
                Div(f'{errorMsg}', style='color: red;') if errorMsg else None) # Creates red error message below if there is an error
 
 
-  </example>
-  <example name="Loading Indicator">
+</example>
+<example name="Loading Indicator">
 from fasthtml.common import *
 from monsterui.all import *
 import asyncio
@@ -1525,8 +1335,8 @@ async def load():
 
 serve()
 
-  </example>
-  <example name="Multi Image Upload">
+</example>
+<example name="Multi Image Upload">
 from base64 import b64encode
 from fasthtml.common import *
 
@@ -1565,8 +1375,8 @@ async def upload(images: list[UploadFile]):
 
 serve()
 
-  </example>
-  <example name="Progress Bar">
+</example>
+<example name="Progress Bar">
 from fasthtml.common import *
 import random
 
@@ -1601,8 +1411,8 @@ def progress_bar(percent_complete: float):
                     hx_vals=f"js:'percent_complete': '{percent_complete}'")
 
 serve()
-  </example>
-  <example name="Show Hide">
+</example>
+<example name="Show Hide">
 from fasthtml.common import *
 
 app, rt = fast_app()
@@ -1624,8 +1434,8 @@ def toggle(show: bool):
         Div(mk_button(show)),
         Div(content if show else ''))
 
-  </example>
-  <example name="Toast">
+</example>
+<example name="Toast">
 from fasthtml.common import *
 from monsterui.all import *
 
@@ -1640,29 +1450,8 @@ def index():
 @rt
 def toast(): return Toast("Here's your toast 🍞!", dur=2, cls=[ToastVT.top, ToastHT.center], alert_cls="text-white bg-green-500 border-green-500")
 
-  </example>
-  <example name="Two Column Grid">
-from fasthtml.common import *
-
-app, rt = fast_app()
-
-@rt
-def index():
-    return Titled('Try editing fields:', 
-        Grid(Div(
-            Form(post="submit", hx_target="#result", hx_trigger="input delay:200ms")(
-                Select(Option("One"), Option("Two"), id="select"),
-                Input(value='j', id="name", placeholder="Name"),
-                Input(value='h', id="email", placeholder="Email"))),
-            Div(id="result")))
-
-@rt
-def submit(d:dict):
-    return Div(*[Div(P(Strong(k),':  ',v)) for k,v in d.items()])
-
-serve()
-  </example>
-  <example name="Update Other Content">
+</example>
+<example name="Update Other Content">
 from fasthtml.common import *
 
 app,rt = fast_app()
@@ -1701,8 +1490,8 @@ def contacts(name:str,email:str):
 
 serve()
 
-  </example>
-  <example name="Web Sockets">
+</example>
+<example name="Web Sockets">
 from fasthtml.common import *
 from collections import deque
 
@@ -1740,8 +1529,8 @@ async def ws(msg:str,send):
 
 serve()
 
-  </example>
-  <example name="Server-Sent Events">
+</example>
+<example name="Server-Sent Events">
 from fasthtml.common import *
 import asyncio
 import time
@@ -1923,11 +1712,8 @@ def clear_displayed_events_route():
     return P("Events display cleared. Waiting for new events or start streaming...")
 
 serve()
-  </example>
-</category>
-
-<category name="Svg">
-  <example name="Click And Drag">
+</example>
+<example name="Click And Drag">
 from fasthtml.common import *
 from fasthtml.svg import *
 
@@ -1956,8 +1742,8 @@ def index():
 
 serve()
 
-  </example>
-  <example name="Find And Click">
+</example>
+<example name="Find And Click">
 from fasthtml.common import *
 from fasthtml.svg import *
 from random import randint
@@ -2005,8 +1791,8 @@ def click(count: int,sess):
 
 serve()
 
-  </example>
-  <example name="Inb Replacement">
+</example>
+<example name="Inb Replacement">
 from fasthtml.common import *
 from fasthtml.svg import *
 
@@ -2031,38 +1817,8 @@ def get(shape: str):
 
 serve()
 
-  </example>
-</category>
-
-<category name="Widgets">
-  <example name="Audio">
-import base64, requests
-from fasthtml.common import *
-
-app, rt = fast_app()
-
-@rt
-def index():
-    audio_path = "https://ucarecdn.com/abb35276-b3cb-4a5c-bba0-878f264e5976/AfricanFellaCumbiaDelishort.mp3"
-    # It's generally better to link directly to audio_path in src if possible,
-    # embedding base64 can make HTML very large.
-    # For this example, we demonstrate base64 embedding.
-    try:
-        b64_audio = load_audio_base64(audio_path)
-        return Audio(src=f"data:audio/mp3;base64,{b64_audio}", controls=True, preload="auto")
-    except Exception as e:
-        return P(f"Error loading audio: {e}")
-
-
-def load_audio_base64(audio_url: str):
-    """ Fetch audio from URL and convert to base64. """
-    response = requests.get(audio_url, timeout=10) # Added timeout
-    response.raise_for_status() # Will raise an HTTPError for bad responses (4XX or 5XX)
-    return base64.b64encode(response.content).decode('ascii')
-
-serve()
-  </example>
-  <example name="Chat Bubble">
+</example>
+<example name="Chat Bubble">
 from fasthtml.common import *
 
 # Added for markdown processing in chat bubbles
@@ -2159,30 +1915,8 @@ Isn't science cool?""",
 ]
 
 serve()
-  </example>
-  <example name="Pdf">
-from fasthtml.common import *
-app, rt = fast_app()
-
-@rt
-def index():
-    # Example PDF: "Attention is All You Need" paper
-    pdf_path = 'https://arxiv.org/pdf/1706.03762.pdf' 
-    
-    # Using <embed> is common for PDFs. Alternatives include <iframe> or a JS PDF viewer.
-    # Ensure the browser has PDF viewing capabilities or a plugin.
-    # For robustness, you might want to add a fallback link.
-    return Titled("PDF Viewer Example",
-        P("Displaying 'Attention is All You Need' from arXiv:"),
-        Embed(src=pdf_path, type='application/pdf',
-              width='100%', height='800px', # Adjust height as needed
-              style="border: 1px solid #ccc;"), # Optional border
-        P(A("Download PDF", href=pdf_path, target="_blank")) # Fallback download link
-    )
-
-serve()
-  </example>
-  <example name="3D Card Component">
+</example>
+<example name="3D Card Component">
 from fasthtml.common import *
 
 # This example demonstrates a 3D card effect on mouseover.
@@ -2284,11 +2018,8 @@ def index():
     )
 
 serve()
-  </example>
-</category>
-
-<category name="Game Examples">
-  <example name="Game of Life">
+</example>
+<example name="Game of Life">
 from fasthtml.common import *
 import asyncio
 
@@ -2440,8 +2171,8 @@ async def put_reset_game():
     return render_grid_component()
 
 serve()
-  </example>
-  <example name="Pictionary">
+</example>
+<example name="Pictionary">
 from fasthtml.common import *
 import asyncio
 import json
@@ -2628,11 +2359,8 @@ async def post_submit_drawing(image_data_b64: str, sess):
     return P(current_caption) # Return the new caption to be swapped into #caption-display
 
 serve()
-  </example>
-</category>
-
-<category name="Todo Series">
-  <example name="Beginner">
+</example>
+<example name="Beginner Todo">
 from fasthtml.common import *
 from fastsql import *
 from apswutils.db import NotFoundError
@@ -2679,8 +2407,8 @@ async def insert_todo(todo:Todo):
 
 serve()
 
-  </example>
-  <example name="Intermediate">
+</example>
+<example name="Intermediate Todo">
 from fasthtml.common import *
 from datetime import date,datetime
 from monsterui.all import *
@@ -2818,11 +2546,8 @@ async def get_edit_todo_form(id:int):
 
 serve()
 
-  </example>
-</category>
-
-<category name="Visualizations">
-  <example name="Altair Charts">
+</example>
+<example name="Altair Charts">
 from fh_altair import altair2fasthml, altair_headers
 from fasthtml.common import *
 import numpy as np
@@ -2865,8 +2590,8 @@ def increment():
 
 serve()
 
-  </example>
-  <example name="Bloch Sphere">
+</example>
+<example name="Bloch Sphere">
 import numpy as np
 from fasthtml.common import *
 import plotly.graph_objects as go
@@ -2993,7 +2718,7 @@ def plot_bloch(state: np.array):
                       legend=dict( font=dict(size=16), x=0.01,y=0.99, xanchor='left', yanchor='top', bgcolor='rgba(255,255,255,0.5)',), # Adjusted legend
                       margin=dict(l=0, r=0, t=0, b=0))
     
-    return plotly2fasthtml(fig)
+    return plotly2fasthml(fig)
 
 
 single_qubit_gates = {
@@ -3013,8 +2738,8 @@ single_qubit_gates = {
     "T": np.array([[1, 0],
                    [0, np.exp(1j * np.pi / 4)]], dtype=complex)
 }
-  </example>
-  <example name="Great Tables Tables">
+</example>
+<example name="Great Tables Tables">
 from functools import cache
 import polars as pl
 from great_tables import GT, html
@@ -3086,9 +2811,9 @@ def index():
             )
         )
 serve()
-  </example>
-  <example name="Matplotlib Charts">
-from fh_matplotlib import matplotlib2fasthtml
+</example>
+<example name="Matplotlib Charts">
+from fh_matplotlib import matplotlib2fasthml
 from fasthtml.common import *
 import numpy as np
 import matplotlib.pyplot as plt # Changed from pylab for common practice
@@ -3105,7 +2830,7 @@ app, rt = fast_app(hdrs=(
     """),
 ))
 
-@matplotlib2fasthtml # Decorator handles conversion to HTML embeddable format
+@matplotlib2fasthml # Decorator handles conversion to HTML embeddable format
 def generate_matplotlib_chart(num_points_val: int):
     # Generate some random data for plotting
     x_data = np.arange(num_points_val)
@@ -3161,8 +2886,8 @@ def update_chart_route(num_points_slider: int): # Parameter name matches input n
     return generate_matplotlib_chart(num_points_slider)
 
 serve()
-  </example>
-  <example name="Observable Plot">
+</example>
+<example name="Observable Plot">
 from fasthtml.common import *
 import numpy as np
 from starlette.responses import JSONResponse # Ensure JSONResponse is available
@@ -3255,13 +2980,13 @@ def get_plot_data_route():
     return JSONResponse(plot_data_list)
 
 serve()
-  </example>
-  <example name="Plotly Charts">
+</example>
+<example name="Plotly Charts">
 from fasthtml.common import *
 import pandas as pd
 import numpy as np
 import plotly.express as px
-from fh_plotly import plotly2fasthtml, plotly_headers # Assuming fh_plotly is in PYTHONPATH
+from fh_plotly import plotly2fasthml, plotly_headers # Assuming fh_plotly is in PYTHONPATH
 
 # FastHTML application setup, including Plotly headers
 app, rt = fast_app(hdrs=(plotly_headers, Style("""
@@ -3328,8 +3053,8 @@ def index_page_plotly():
     )
 
 serve()
-  </example>
-  <example name="Plotly Selections">
+</example>
+<example name="Plotly Selections">
 import plotly.express as px
 from fasthtml.common import *
 
@@ -3407,8 +3132,8 @@ def get_point_details(x_val_from_plot: float): # Type hint for the x-value
     return P(Strong(f"You clicked a point with X-value: {x_val_from_plot:.2f}"))
 
 serve()
-  </example>
-  <example name="Seaborn Svg">
+</example>
+<example name="Seaborn Svg">
 from fasthtml.common import *
 import numpy as np
 import seaborn as sns
@@ -3491,5 +3216,4 @@ def update_heatmap_route(n_cols_slider:int): # Parameter name matches slider nam
   return svg_plot_html
 
 serve()
-  </example>
-</category>
+</example>
