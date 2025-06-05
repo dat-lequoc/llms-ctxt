@@ -16,6 +16,6 @@ https://raw.githubusercontent.com/dat-lequoc/llms-ctxt/refs/heads/main/context/1
 
 - [Google Gemini SDK | 05-06-2025](./context/1_gemini-llms-cxt-sdk.md)
 
-- [FastHTML SDK | 05-06-2025](./context/2_fasthtml-llms-cxtx-sdk.md)
+- [FastHTML SDK | 05-06-2025](./context/2_fasthtml-llms-cxtx-sdk.txt)
 
-- [FastHTML Examples | 05-06-2025](./context/3_fasthtml-llms-cxtx-examples.md)
+- [FastHTML Examples | 05-06-2025](./context/3_fasthtml-llms-cxtx-examples.txt)
