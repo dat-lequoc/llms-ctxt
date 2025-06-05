@@ -8,6 +8,10 @@ Copy & paste this into Cursor's docs:
 https://raw.githubusercontent.com/dat-lequoc/llms-ctxt/refs/heads/main/context/1_gemini-llms-cxt-sdk.md
 ```
 
+# Contributing
+
+- Feel free to contribute by adding context files for other frameworks.
+
 # Context files
 
 - [1_gemini-llms-cxt-sdk.md](./context/1_gemini-llms-cxt-sdk.md)
