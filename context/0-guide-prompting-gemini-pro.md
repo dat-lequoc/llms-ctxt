@@ -1,7 +1,3 @@
-Of course. The two prompts you've provided are exceptional examples of state-of-the-art prompt engineering. They are not just simple requests; they are comprehensive documents that program the AI's behavior, reasoning process, and output format.
-
-Here is a detailed guide on how to write good prompts, using the principles extracted from these two examples.
-
 ---
 
 ## A Detailed Guide to Writing High-Quality Prompts
