@@ -64,7 +64,7 @@ const response = await openai.chat.completions.create({
   messages: [
     {
       role: "user",
-      content: `<instructions>${instructions}</instructions>\n<code>${initialCode}</code>\n<update>${editSnippet}</update>`,
+      content: `<instruction>${instructions}</instruction>\n<code>${initialCode}</code>\n<update>${editSnippet}</update>`,
     },
   ],
 });
