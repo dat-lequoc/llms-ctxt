@@ -6,9 +6,9 @@ For teams who want to build the best AI coding agents.
 
 Morph Fast Apply is a tool that you give to your AI agent that allows it to edit code or files. When building AI agents that edit code or files you have 3 options:
 
-1.  **Rewrite entire files** (slow, expensive, loses context, hallucinates updates) - 100+ seconds per file edit
-2.  **Use search-and-replace** (brittle, fails on whitespace/formatting, needs self correction loops) - 86% accurate with Claude 4 Sonnet: 35s per file edit
-3.  **Fast Apply via an edit_file tool** (fast, accurate, semantic) - 98% accurate with Morph + Claude 4 Sonnet: 6s per file edit
+1.  **Rewrite entire files** (slow, expensive, loses context, hallucinates updates)
+2.  **Use search-and-replace** (brittle, fails on whitespace/formatting, needs self correction loops)
+3.  **Fast Apply via an edit_file tool** (fast, accurate, semantic)
 
 Current AI code editing is broken. Agents either rewrite entire files (which is slow, expensive, and loses context) or use search-and-replace (which is brittle, fails, and needs self-correction). You lose customers while your agents are fixing patch errors.
 
@@ -24,7 +24,7 @@ Fast Apply solves this. Your agent uses an `edit_file` tool that writes lazy edi
 const response = await openai.chat.completions.create({
   model: "morph-v3-large",
   messages: [{
-    role: "user", 
+    role: "user",
     content: `<instruction>${instructions}</instruction>\n<code>${originalCode}</code>\n<update>${codeEdit}</update>`
   }]
 });
@@ -38,7 +38,7 @@ const response = await openai.chat.completions.create({
 
 ## Morph's Models
 
-*   **Apply Model**: Apply code changes at 4,500+ tokens/sec with 98% accuracy.
+*   **Apply Model**: Apply code changes at high speed with high accuracy.
 *   **Embedding Model**: Embeddings built for code.
 *   **Rerank Model**: Reorder code results with code reranking.
 
@@ -215,21 +215,13 @@ echo "$response" > output_file.js
 
 # Apply Model Details
 
-The Apply Model intelligently merges your original code with update snippets at **98% accuracy** and **4500+ tokens/second**. Unlike diff-based methods, it preserves code structure, comments, and syntax while understanding context semantically.
+The Apply Model intelligently merges your original code with update snippets. Unlike diff-based methods, it preserves code structure, comments, and syntax while understanding context semantically.
 
 ### Why Choose Fast Apply?
 
-*   **Ultra-fast**: 4,500+ tokens/sec
-*   **High accuracy**: 98% success rate in one pass
-*   **Token efficient**: Processes only changed sections
-
-### Models
-
-| Model              | Speed         | Accuracy | Best For            |
-| ------------------ | ------------- | -------- | ------------------- |
-| **morph-v3-fast**  | 4500+ tok/sec | 96%      | Real-time edits     |
-| **morph-v3-large** | 2500+ tok/sec | 98%      | Production systems  |
-| **auto**           | Variable      | \~98%    | Automatic selection |
+*   **Ultra-fast**: Processes edits quickly.
+*   **High accuracy**: High success rate in one pass.
+*   **Token efficient**: Processes only changed sections.
 
 ### Best Practices
 
@@ -294,117 +286,10 @@ Build precise AI agents that edit code fast without full file rewrites using Mor
 ### Agent Workflow
 
 Effective agents follow this pattern:
-1.  **🔍 Search**: Find relevant code with `codebase_search` or `grep_search`.
-2.  **📖 Read**: Get context with `read_file` before editing.
+1.  **🔍 Search**: Find relevant code with codebase or grep search.
+2.  **📖 Read**: Get context with a file reader before editing.
 3.  **✏️ Edit**: Make precise changes with `edit_file`.
 4.  **✅ Verify**: Read again to confirm changes worked.
-
-### Essential Supporting Tools
-
-**`read_file`: Get Context Before Editing**
-Always read files before editing to understand the structure.
-```json
-{
-  "name": "read_file",
-  "description": "Read the contents of a file to understand its structure before making edits",
-  "parameters": {
-    "properties": {
-      "target_file": {
-        "type": "string",
-        "description": "The path of the file to read"
-      },
-      "start_line_one_indexed": {
-        "type": "integer",
-        "description": "Start line number (1-indexed)"
-      },
-      "end_line_one_indexed_inclusive": {
-        "type": "integer",
-        "description": "End line number (1-indexed, inclusive)"
-      },
-      "explanation": {
-        "type": "string",
-        "description": "Why you're reading this file"
-      }
-    },
-    "required": ["target_file", "explanation"]
-  }
-}
-```
-
-**`codebase_search`: Find What to Edit**
-Semantic search to locate relevant code.
-```json
-{
-  "name": "codebase_search",
-  "description": "Find snippets of code from the codebase most relevant to the search query",
-  "parameters": {
-    "properties": {
-      "query": {
-        "type": "string",
-        "description": "The search query to find relevant code"
-      },
-      "target_directories": {
-        "type": "array",
-        "items": {"type": "string"},
-        "description": "Optional: limit search scope to specific directories"
-      },
-      "explanation": {
-        "type": "string",
-        "description": "Why you're searching for this"
-      }
-    },
-    "required": ["query", "explanation"]
-  }
-}
-```
-
-**`grep_search`: Find Exact Matches**
-When you need exact text or pattern matches.
-```json
-{
-  "name": "grep_search",
-  "description": "Fast text-based regex search that finds exact pattern matches within files",
-  "parameters": {
-    "properties": {
-      "query": {
-        "type": "string",
-        "description": "The regex pattern to search for"
-      },
-      "include_pattern": {
-        "type": "string",
-        "description": "File types to include (e.g. '*.ts')"
-      },
-      "explanation": {
-        "type": "string",
-        "description": "Why you're searching for this pattern"
-      }
-    },
-    "required": ["query", "explanation"]
-  }
-}
-```
-
-**`list_dir`: Explore Directory Structure**
-Navigate and understand the codebase structure.
-```json
-{
-  "name": "list_dir",
-  "description": "List the contents of a directory to understand project structure",
-  "parameters": {
-    "properties": {
-      "relative_workspace_path": {
-        "type": "string",
-        "description": "Path to list contents of, relative to the workspace root"
-      },
-      "explanation": {
-        "type": "string",
-        "description": "Why you're listing this directory"
-      }
-    },
-    "required": ["relative_workspace_path", "explanation"]
-  }
-}
-```
 
 ### Common Patterns for `edit_file`
 
@@ -512,7 +397,7 @@ With this more natural XML approach:
 export async function apiCall(endpoint: string, options?: RequestInit) {
   const maxRetries = 3;
   let lastError: Error;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const response = await fetch(endpoint, options);
@@ -526,7 +411,7 @@ export async function apiCall(endpoint: string, options?: RequestInit) {
       await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
     }
   }
-  
+
   throw new Error(`API call failed after ${maxRetries} attempts: ${lastError.message}`);
 }
 // ... existing code ...
@@ -552,13 +437,3 @@ Focus on code quality and correctness. Don't worry about XML formatting - just e
 
 ### Parsing XML Tool Calls
 You can use regex-based parsers to extract tool calls and their parameters from the model's output. Build robust parsers that can handle minor XML issues and attempt recovery strategies.
-
-### Performance Comparison
-
-In our testing with Morph Apply, XML tool calls consistently outperform JSON:
-*   **30% fewer malformed tool calls**
-*   **25% better code quality scores**
-*   **40% faster generation** (less constraint overhead)
-*   **60% better error recovery** rates
-
-The performance gains compound with complexity—the more sophisticated your coding tasks, the greater the XML advantage becomes. For production coding assistants, XML tool calls are essential for achieving state-of-the-art performance.
