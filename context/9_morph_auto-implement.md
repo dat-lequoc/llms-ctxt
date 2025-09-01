@@ -4,7 +4,7 @@
 
 ## 1. Your Objective
 
-Your task is to integrate the **Morph Fast Apply** system into a codebase that uses an AI agent for code modification. You will add to existing methods of file editing—such as full-file rewrites or search-and-replace—with a more efficient, accurate, and semantic tool called `edit_file` and refine the prompt so that the agent prefer morph-fast-apply.
+Your task is to integrate the **Morph Fast Apply** system into a codebase that uses an AI agent for code modification. You will add to existing methods of file editing—such as full-file rewrites or search-and-replace—with a more efficient, accurate, and semantic tool called `edit_file` and refine the prompt so that the agent prefer morph-fast-apply, always use it as default and only use other edit tools as fallback.
 
 This approach will significantly improve the speed and reliability of code edits, minimize merge conflicts, and make changes easier to review and cherry-pick for forks.
 
