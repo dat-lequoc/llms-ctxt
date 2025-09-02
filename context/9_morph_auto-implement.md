@@ -114,6 +114,12 @@ The `content` of the user message must be a string formatted with three distinct
 <update>{code_edit_snippet_from_agent}</update>
 ```
 
+**Available Models:**
+You can specify one of the following models in your API call:
+* `morph-v3-fast`
+* `morph-v3-large`
+* `auto`
+
 **Example Implementation (Python):**
 
 ```python
