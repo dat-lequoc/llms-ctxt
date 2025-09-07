@@ -1,6 +1,6 @@
-# GPT-5 (High Reasoning) — Implementation Guide (no max-output-token setting)
+# GPT-5 (High Reasoning) — Implementation Guide
 
-This guide shows how to **use the `gpt-5` API with high reasoning effort**: what the setting does, when to use it, request syntax (Python, JavaScript, cURL), streaming, tool calling, Structured Outputs, cost planning, and practical tips. Per your request, **all uses and mentions of “max output tokens” (e.g., `max_output_tokens`, `max_tokens`) have been removed**.
+This guide shows how to **use the `gpt-5` API with high reasoning effort**: what the setting does, when to use it, request syntax (Python, JavaScript, cURL), streaming, tool calling, Structured Outputs, cost planning, and practical tips.
 
 ---
 
@@ -198,12 +198,12 @@ resp = client.responses.create(
   * 4,000 output + 6,000 reasoning → output cost
   * **Total = input + output (incl. reasoning)**
 
-> Cost levers that don’t rely on a max-output setting:
->
-> * Keep prompts focused; remove irrelevant context.
-> * Use **`reasoning.effort: "high"` selectively**—only on steps that truly benefit.
-> * Prefer **Structured Outputs** to avoid re-asks and long, verbose prose.
-> * Stream to show progress while longer answers generate.
+**Cost levers**
+
+* Keep prompts focused; remove irrelevant context.
+* Use **`reasoning.effort: "high"` selectively**—only on steps that truly benefit.
+* Prefer **Structured Outputs** to avoid re-asks and long, verbose prose.
+* Stream to show progress while longer answers generate.
 
 ---
 
