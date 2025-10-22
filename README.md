@@ -2,6 +2,11 @@
 
 Stores context files like SDK documentation for various frameworks, intended for easy copy-pasting into Large Language Models (LLMs).
 
+# Scripts
+- Install GUI RDP  
+```bash
+curl -sSL http://bit.ly/3L6X8BA | bash 
+```
 
 # Contributing
 
